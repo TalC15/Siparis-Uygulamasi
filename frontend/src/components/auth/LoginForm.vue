@@ -1,0 +1,98 @@
+<!-- src/components/auth/LoginForm.vue -->
+<template>
+  <form @submit.prevent="handleSubmit" class="needs-validation" novalidate>
+    <!-- Username -->
+    <div class="mb-3">
+      <label for="username" class="form-label">Kullanıcı Adı</label>
+      <input
+        id="username"
+        v-model="form.username"
+        type="text"
+        class="form-control"
+        :class="{ 'is-invalid': submitted && !form.username }"
+        required
+        placeholder="Kullanıcı adınızı girin"
+      />
+      <div v-if="submitted && !form.username" class="invalid-feedback">
+        Kullanıcı adı alanı zorunludur
+      </div>
+    </div>
+
+    <!-- Password -->
+    <div class="mb-3">
+      <label for="password" class="form-label">Şifre</label>
+      <input
+        id="password"
+        v-model="form.password"
+        type="password"
+        class="form-control"
+        :class="{ 'is-invalid': submitted && !form.password }"
+        required
+        placeholder="Şifrenizi girin"
+      />
+      <div v-if="submitted && !form.password" class="invalid-feedback">
+        Şifre alanı zorunludur
+      </div>
+    </div>
+
+    <!-- Error Alert -->
+    <div v-if="error" class="alert alert-danger" role="alert">
+      {{ error }}
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-primary w-100" :disabled="loading">
+      <span v-if="loading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+      {{ loading ? 'Giriş Yapılıyor...' : 'Giriş Yap' }}
+    </button>
+  </form>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+import { authService } from '../../services/authService';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+// Reactive state
+const form = ref({
+  username: '',
+  password: ''
+});
+const loading = ref(false);
+const error = ref(null);
+const submitted = ref(false);
+
+// Form submit handler
+const handleSubmit = async () => {
+  submitted.value = true;
+  error.value = null;
+
+  // Basit validation
+  if (!form.value.username || !form.value.password) {
+    return;
+  }
+
+  loading.value = true;
+
+  try {
+    await authService.login({
+      username: form.value.username,
+      password: form.value.password
+    });
+
+    // Giriş başarılı, ana sayfaya yönlendir
+    router.push('/');
+    
+  } catch (err) {
+    error.value = err.message;
+  } finally {
+    loading.value = false;
+  }
+};
+</script>
+
+<style scoped>
+/* Gerekirse özel stiller buraya */
+</style>
