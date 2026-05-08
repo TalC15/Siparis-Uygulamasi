@@ -42,9 +42,9 @@ const fields = [
       { value: '5', label: 'adet' },
     ]
   },
-  { key: 'unit_weight',  label: 'Birim Ağırlık', type: 'number' },
-  { key: 'box_quantity', label: 'Kutu Adedi',    type: 'number' },
-  { key: 'box_weight',   label: 'Kutu Ağırlığı', type: 'number' },
+  { key: 'unit_weight',  label: 'Birim Ağırlık', type: 'number', maxLength: 9 },
+  { key: 'box_quantity', label: 'Kutu Adedi',    type: 'number', maxLength: 9 },
+  { key: 'box_weight',   label: 'Kutu Ağırlığı', type: 'number', maxLength: 9 },
 ]
  
 // ---------------------------------------------------------------

@@ -34,6 +34,12 @@ const routes = [
     meta: {requiresAuth: true}
   },
   {
+    path:'/users',
+    name: 'Users',
+    component: ()=> import('../views/users/UsersView.vue'),
+    meta: {requiresAuth: true}
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('../views/NotFoundView.vue')

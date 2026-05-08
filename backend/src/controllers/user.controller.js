@@ -5,16 +5,16 @@ exports.getAll = async (req, res) => {
 };
 
 exports.create = async (req, res) => {
-    await User.create(req.body.name);
-    res.send("Created");
+    await User.create(req.body);
+    res.json({message:"Created"});
 };
 
 exports.update = async (req, res) => {
-    await User.update(req.params.id, req.body.name);
-    res.send("Updated");
+    await User.update(req.params.id, req.body);
+    res.json({message:"Updated"});
 };
 
 exports.delete = async (req, res) => {
     await User.delete(req.params.id);
-    res.send("Deleted");
+    res.json({message:"Deleted"});
 };

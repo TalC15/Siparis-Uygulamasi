@@ -57,7 +57,7 @@ exports.createOrder = async (req,res) => {
                 `);
        }
    
-    res.send({order_id})   
+    res.json({id:order_id})   
 };
 
 exports.updateOrder = async (req, res) => {

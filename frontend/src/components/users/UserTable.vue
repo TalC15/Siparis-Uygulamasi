@@ -5,33 +5,33 @@
         <tr>
           <th>#</th>
           <th>Ad</th>
-          <th>Adres</th>
-          <th>Telefon</th>
-          <th>Şube</th>
+          <th>Kullanıcı Adı</th>
+          <th>Şifre</th>
+          <th>Rol</th>
           <th>İşlemler</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-if="customers.length === 0">
+        <tr v-if="users.length === 0">
           <td colspan="6" class="text-center text-muted">Ürün bulunamadı</td>
         </tr>
-        <tr v-for="customer in customers" :key="customer.id">
-          <td>{{ customer.id }}</td>
-          <td>{{ customer.name }}</td>
-          <td>{{ customer.address }}</td>
-          <td>{{ customer.phone }}</td>
-          <td>{{ customer.branch }}</td>
+        <tr v-for="user in users" :key="user.id">
+          <td>{{ user.id }}</td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.password }}</td>
+          <td>{{ user.role }}</td>
           <td>
             <button
               class="btn btn-sm btn-outline-primary me-2"
-              @click="$emit('edit', customer)"
+              @click="$emit('edit', user)"
               :disabled="showDeleteModal"
             >
               Düzenle
             </button>
             <button
               class="btn btn-sm btn-outline-danger"
-              @click="$emit('delete', customer.id)"
+              @click="$emit('delete', user.id)"
               :disabled="showDeleteModal"
             >
               Sil
@@ -45,7 +45,7 @@
  
 <script setup>
 defineProps({
-  customers: {
+  users: {
     type: Array,
     default: () => [],
   },

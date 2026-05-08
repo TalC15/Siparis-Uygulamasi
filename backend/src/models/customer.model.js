@@ -13,7 +13,7 @@ exports.create = async (body) => {
     .input('address', address)
     .input('phone', phone)
     .input('branch', branch)
-        .query('INSERT INTO Customers(name,address,phone,branch) VALUES (@name,@address,@phone,@branch)');
+    .query('INSERT INTO Customers(name,address,phone,branch) VALUES (@name,@address,@phone,@branch)');
 };
 
 exports.update = async (id, body) => {

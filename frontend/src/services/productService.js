@@ -36,7 +36,7 @@ export async function updateProduct(id, data) {
     },
     body: JSON.stringify(data),
   })
-  if (!res.ok) throw new Error('Ürün güncellenemedi')
+  if (!res.ok) throw new Error('Ürün bilgisi güncellenemedi')
   return res.json()
 }
  

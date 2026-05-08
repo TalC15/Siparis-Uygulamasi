@@ -1,7 +1,7 @@
 <template>
   <CrudView
-    title="Müşteriler"
-    item-label="Müşteri"
+    title="Kullanıcılar"
+    item-label="Kullanıcı"
     :fields="fields"
     :loading="loading"
     :error="error"
@@ -9,8 +9,8 @@
     @delete="handleDelete"
     v-slot="{ onEdit, onDelete, showDeleteModal }"
   >
-    <CustomerTable
-      :customers="customers"
+    <UserTable
+      :users="users"
       :show-delete-modal="showDeleteModal"
       @edit="onEdit"
       @delete="onDelete"
@@ -21,10 +21,10 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import CrudView    from '@/components/common/CrudView.vue'
-import CustomerTable from '@/components/customers/CustomerTable.vue'
-import { getCustomers, createCustomer, updateCustomer, deleteCustomer } from '@/services/customerService'
+import UserTable from '@/components/users/UserTable.vue'
+import { getUsers, createUser, updateUser, deleteUser } from '@/services/userService'
  
-const customers = ref([])
+const users = ref([])
 const loading  = ref(false)
 const error    = ref(null)
  
@@ -32,20 +32,25 @@ const error    = ref(null)
 // Field config — sadece bu view'a özgü kısım
 // ---------------------------------------------------------------
 const fields = [
-  { key: 'name',         label: 'Ad',           type: 'text',   required: true, maxLength: 255 },
-  { key: 'address',    label: 'Adres',    type: 'text', required: true, maxLength: 255},
-  { key: 'phone',  label: 'Telefon', type: 'text', required: true, maxLength: 50 },
-  { key: 'branch', label: 'Şube',    type: 'text',required: true, maxLength: 255 }
+  { key: 'name',         label: 'Ad',           type: 'text',   required: true, maxLength: 100 },
+  { key: 'username',    label: 'Kullanıcı Adı', type: 'text',   required: true, maxLength: 100},
+  { key: 'password',     label: 'Şifre',        type: 'text',   required:true, maxLength: 255 },
+  { key: 'role', label: 'Rol',    type: 'select', required:true,
+        options: [
+            {value:'1',label:'plasiyer'},
+            {value:'2',label:'admin'}
+        ]
+    } 
 ]
  
 // ---------------------------------------------------------------
 // Data fetching
 // ---------------------------------------------------------------
-async function fetchCustomers() {
+async function fetchUsers() {
   loading.value = true
   error.value   = null
   try {
-    customers.value = await getCustomers()
+    users.value = await getUsers()
   } catch (err) {
     error.value = err.message
   } finally {
@@ -60,11 +65,11 @@ async function handleSave({ id, isEditing, data }) {
   error.value = null
   try {
     if (isEditing) {
-      await updateCustomer(id, data)
+      await updateUser(id, data)
     } else {
-      await createCustomer(data)
+      await createUser(data)
     }
-    await fetchCustomers()
+    await fetchUsers()
   } catch (err) {
     error.value = err.message
     throw err   // CrudView modalı açık tutsun
@@ -74,13 +79,13 @@ async function handleSave({ id, isEditing, data }) {
 async function handleDelete(id) {
   error.value = null
   try {
-    await deleteCustomer(id)
-    await fetchCustomers()
+    await deleteUser(id)
+    await fetchUsers()
   } catch (err) {
     error.value = err.message
     throw err
   }
 }
  
-onMounted(fetchCustomers)
+onMounted(fetchUsers)
 </script>

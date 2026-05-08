@@ -7,15 +7,15 @@ exports.getAll = async (req, res) => {
 
 exports.create = async (req, res) => {
     await Customer.create(req.body);
-    res.json({'Data':'Created'});
+    res.json({message:"Created"});
 };
 
 exports.update = async (req, res) => {
     await Customer.update(req.params.id, req.body);
-    res.json("Updated");
+    res.json({message:"Updated"});
 };
 
 exports.delete = async (req, res) => {
     await Customer.delete(req.params.id);
-    res.json("Deleted");
+    res.json({message:"Deleted"});
 };
