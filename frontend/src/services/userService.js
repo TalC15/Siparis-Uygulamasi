@@ -23,8 +23,8 @@ export async function createUser(data) {
     },
     body: JSON.stringify(data),
   })
-  if (!res.ok) throw new Error('Kullanıcı oluşturulamadı')
-  return res.json()
+  if (res.ok) return res.json()
+  else return res.json({'message':'bir sorun oluştu'})
 }
  
 export async function updateUser(id, data) {
@@ -40,6 +40,20 @@ export async function updateUser(id, data) {
   return res.json()
 }
  
+
+export async function updateUserPassword(id, data) {
+  const res = await fetch(`${API_URL}/users/pass/${id}`, {
+    method: 'PUT',
+    headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${tokenService.getToken()}`
+    },
+    body: JSON.stringify(data),
+  })
+  if (!!res.ok) 
+  return res.json()
+}
+
 export async function deleteUser(id) {
   const res = await fetch(`${API_URL}/users/${id}`, {
     method: 'DELETE',

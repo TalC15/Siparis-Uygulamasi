@@ -29,6 +29,7 @@
       :on-edit="openEditModal"
       :on-delete="alertDeleteConfirmation"
       :show-delete-modal="showDeleteModal"
+      :is-editing="isEditing"
     />
  
     <!-- Create / Edit Modal -->
@@ -46,6 +47,9 @@
           </div>
  
           <div class="modal-body">
+             <div v-if="modalError"  class="alert alert-danger" role="alert">
+                {{ modalError }}
+              </div>
             <template v-for="field in fields" :key="field.key">
  
               <!-- Select -->
@@ -99,7 +103,7 @@
 </template>
  
 <script setup>
-import { ref } from 'vue'
+import { ref,computed,toRef } from 'vue'
  
 // ---------------------------------------------------------------
 // Props
@@ -114,7 +118,7 @@ const props = defineProps({
   /** loading / error durumu view'dan gelir */
   loading: { type: Boolean, default: false },
   error:   { type: String,  default: null  },
- 
+  modalError: {type:String, default: null},
   /**
    * Form alan tanımları:
    * {
@@ -132,7 +136,7 @@ const props = defineProps({
 // ---------------------------------------------------------------
 // Emits
 // ---------------------------------------------------------------
-const emit = defineEmits(['save', 'delete'])
+const emit = defineEmits(['save', 'delete','isEditing','modalError'])
  
 // ---------------------------------------------------------------
 // State
@@ -144,6 +148,7 @@ const saving          = ref(false)
 const savingAttempted = ref(false)
 const deletedItemId   = ref(null)
 const editingId       = ref(null)
+const modalError = toRef(props, 'modalError')
  
 const buildEmptyForm = () =>
   Object.fromEntries(props.fields.map(f => [f.key, '']))
@@ -176,6 +181,7 @@ function formIsValid() {
 // ---------------------------------------------------------------
 function openCreateModal() {
   isEditing.value       = false
+  emit('isEditing', false) 
   editingId.value       = null
   savingAttempted.value = false
   form.value            = buildEmptyForm()
@@ -184,6 +190,7 @@ function openCreateModal() {
  
 function openEditModal(item) {
   isEditing.value       = true
+  emit('isEditing', true) 
   editingId.value       = item.id
   savingAttempted.value = false
   form.value            = Object.fromEntries(
@@ -195,23 +202,31 @@ function openEditModal(item) {
 function closeModal() {
   showModal.value       = false
   savingAttempted.value = false
+  emit('modalError', null)
 }
  
 // ---------------------------------------------------------------
 // Save
 // ---------------------------------------------------------------
-async function handleSave() {
+function handleSave() {
   savingAttempted.value = true
   if (!formIsValid()) return
  
   saving.value = true
   try {
-    await emit('save', {
-      id:       isEditing.value ? editingId.value : null,
-      isEditing: isEditing.value,
-      data:     { ...form.value },
+    const result = emit('save', {
+    id: isEditing.value ? editingId.value : null,
+    isEditing: isEditing.value,
+    data: isEditing.value
+      ? (({ password, ...form_yeni }) => form_yeni)(form.value)
+      : { ...form.value }
     })
+
+  saving.value = false
+
+  if (!result?.success) return
     closeModal()
+    
   } finally {
     saving.value = false
   }

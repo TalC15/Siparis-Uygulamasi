@@ -9,11 +9,11 @@
         v-model="form.name"
         type="text"
         class="form-control"
-        :class="{ 'is-invalid': submitted && !form.name }"
+        :class="{ 'is-invalid': submitted && (!form.name || form.name.trim()==='') }"
         required
         placeholder="Adınızı girin"
       />
-      <div v-if="submitted && !form.name" class="invalid-feedback">
+      <div v-if="submitted && (!form.name || form.name.trim()==='')" class="invalid-feedback">
         Ad alanı zorunludur
       </div>
     </div>
@@ -26,11 +26,11 @@
         v-model="form.username"
         type="text"
         class="form-control"
-        :class="{ 'is-invalid': submitted && !form.username }"
+        :class="{ 'is-invalid': submitted && (!form.username || form.username.trim()==='') }"
         required
         placeholder="Kullanıcı adınızı girin"
       />
-      <div v-if="submitted && !form.username" class="invalid-feedback">
+      <div v-if="submitted && (!form.username || form.username.trim()==='')" class="invalid-feedback">
         Kullanıcı adı alanı zorunludur
       </div>
     </div>
@@ -43,12 +43,12 @@
         v-model="form.password"
         type="password"
         class="form-control"
-        :class="{ 'is-invalid': submitted && form.password.length < 6 }"
+        :class="{ 'is-invalid': submitted && form.password.trim().length < 6}"
         required
         minlength="6"
         placeholder="En az 6 karakter"
       />
-      <div v-if="submitted && form.password.length < 6" class="invalid-feedback">
+      <div v-if="submitted && form.password.trim().length < 6" class="invalid-feedback">
         Şifre en az 6 karakter olmalıdır
       </div>
     </div>
@@ -96,7 +96,7 @@ const handleSubmit = async () => {
   success.value = null;
 
   // Basit validation
-  if (!form.value.name || !form.value.username || form.value.password.length < 6) {
+  if ((!form.value.name || form.value.name.trim()==='') || (!form.value.username || form.value.username.trim()==='') || form.value.password.trim().length < 6){
     return;
   }
 

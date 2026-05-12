@@ -19,7 +19,7 @@
           <td>{{ user.id }}</td>
           <td>{{ user.name }}</td>
           <td>{{ user.username }}</td>
-          <td>{{ user.password }}</td>
+          <td>******</td>
           <td>{{ user.role }}</td>
           <td>
             <button
@@ -30,11 +30,14 @@
               Düzenle
             </button>
             <button
-              class="btn btn-sm btn-outline-danger"
+              class="btn btn-sm btn-outline-danger me-2"
               @click="$emit('delete', user.id)"
               :disabled="showDeleteModal"
             >
               Sil
+            </button>
+            <button @click="$emit('editPassword',user.id)" class="btn btn-outline-secondary p-1" :disabled="showDeleteModal">
+              Şifreyi Güncelle
             </button>
           </td>
         </tr>
@@ -51,8 +54,8 @@ defineProps({
   },
   showDeleteModal: {
     type: Boolean
-  }
+  },
 })
  
-defineEmits(['edit', 'delete'])
+defineEmits(['edit', 'delete','editPassword'])
 </script>

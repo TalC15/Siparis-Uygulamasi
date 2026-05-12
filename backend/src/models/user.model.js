@@ -15,16 +15,17 @@ exports.create = async (body,res) => {
             .query('SELECT * FROM Users WHERE username=@username');
 
         if (check.recordset.length > 0) {
-            return 
+            return false
         }
         // şifre hash
     const hashedPassword = await bcrypt.hash(password, 10);
     await p.request()
     .input('name', name)
     .input('username',username)
-    .input('hashedPassword',hashedPassword)
     .input('role',role)
+    .input('hashedPassword',hashedPassword)
     .query('INSERT INTO Users(name,username,password,role) VALUES(@name,@username,@hashedPassword,@role)');
+    return true
 };
 
 exports.update = async (id, body) => {
@@ -36,21 +37,29 @@ exports.update = async (id, body) => {
             .query('SELECT * FROM Users WHERE username=@username');
 
         if (check.recordset.length > 0) {
-            return res.status(400).json({ message: 'Kullanıcı adı zaten var' });
+            return false
         }
-
-        // şifre hash
-        const hashedPassword = await bcrypt.hash(password, 10);
 
     await p.request()
         .input('id', id)
         .input('name', name)
         .input('username',username)
-        .input('hadhedPassword',hashedPassword)
         .input('role',role)
-        .query('UPDATE Users SET name=@name,username=@username,password=@hashedPassword,role=@role WHERE id=@id');
-        res.json({ message: 'Kullanıcı güncellendi' });
+        .query('UPDATE Users SET name=@name,username=@username,role=@role WHERE id=@id');
+        return true
 };
+
+exports.updatePassword = async(id,body)=>{
+    const p = await pool;
+    const {newPassword} = body
+     const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await p.request()
+        .input('id', id)
+        .input('hashedPassword', hashedPassword)
+        .query('UPDATE Users SET password = @hashedPassword WHERE id=@id');
+        return true
+};
+
 
 exports.delete = async (id) => {
     const p = await pool;
