@@ -61,7 +61,7 @@
                   :class="{ 'is-invalid': savingAttempted && field.required && !form[field.key] }"
                 >
                   <option disabled value="">Seçiniz</option>
-                  <option v-for="opt in field.options" :key="opt.value" :value="opt.label">
+                  <option v-for="opt in field.options" :key="opt.value" :value="domainNameController(opt)">
                     {{ opt.label }}
                   </option>
                 </select>
@@ -78,9 +78,15 @@
                 <label class="form-label">{{ field.label }}</label>
                 <input
                   v-model="form[field.key]"
+                  @input="onTelInput(field)"
                   :type="field.type || 'text'"
+                   v-bind="field.type === 'tel'
+                    ? {
+                  placeholder: '5XXXXXXXXX'
+                  }
+                  : {placeholder: field.label}"
                   class="form-control"
-                  :class="{ 'is-invalid': savingAttempted && hasFieldError(field) }"
+                  :class="{ 'is-invalid': savingAttempted && hasFieldError(field)}"
                 />
                 <div v-if="savingAttempted && hasFieldError(field)" class="invalid-feedback">
                   {{ fieldErrorMessage(field) }}
@@ -117,8 +123,11 @@ const props = defineProps({
  
   /** loading / error durumu view'dan gelir */
   loading: { type: Boolean, default: false },
-  error:   { type: String,  default: null  },
-  modalError: {type:String, default: null},
+  error:   { type: String,  default: null },
+  usersModalError: {type:String, default: null},
+  productsModalError: {type:String, default: null},
+  customersModalError: {type:String, default: null},
+  domainName: {type:String, default: null},
   /**
    * Form alan tanımları:
    * {
@@ -130,13 +139,14 @@ const props = defineProps({
    *   options:   [{ value, label }] // sadece select için
    * }
    */
-  fields: { type: Array, required: true },
+  fields: { type: Array, required: true},
+  onSave: {type:Function,required: true},
 })
  
 // ---------------------------------------------------------------
 // Emits
 // ---------------------------------------------------------------
-const emit = defineEmits(['save', 'delete','isEditing','modalError'])
+const emit = defineEmits(['delete','isEditing','usersModalError','productsModalError','customersModalError'])
  
 // ---------------------------------------------------------------
 // State
@@ -148,7 +158,7 @@ const saving          = ref(false)
 const savingAttempted = ref(false)
 const deletedItemId   = ref(null)
 const editingId       = ref(null)
-const modalError = toRef(props, 'modalError')
+const modalError = toRef(props, `${props.domainName}ModalError`)
  
 const buildEmptyForm = () =>
   Object.fromEntries(props.fields.map(f => [f.key, '']))
@@ -158,18 +168,50 @@ const form = ref(buildEmptyForm())
 // ---------------------------------------------------------------
 // Validation helpers
 // ---------------------------------------------------------------
+
+function onTelInput(field) {
+  if (field.type !== 'tel') return
+
+  let val = form.value[field.key]
+
+  val = val
+    .replace(/[^0-9]/g, '')   // sadece rakam
+    .replace(/^0/, '')        // baştaki 0'ı sil
+
+  // max 10 karakter
+  val = val.slice(0, 10)
+
+  form.value[field.key] = val
+}
+
+function domainNameController(opt){
+  switch (props.domainName) {
+    case 'orders':
+      return opt.value;
+
+    default:
+      return opt.label;
+  }
+};
+
 function hasFieldError(field) {
   const val = form.value[field.key]
-  if (field.required && (!val || String(val).trim() === '')) return true
-  if (field.maxLength && String(val).length > field.maxLength)  return true
+  if (field?.required && (!val || String(val).trim() === '')) return true
+  if (field?.maxLength && String(val)?.length > field?.maxLength)  return true
+  if(field?.type === 'tel' && val?.length > 0 && val?.length < 10) return true
+  if(field?.positiveNumber==='mandatory' && val<0) return true
   return false
 }
  
 function fieldErrorMessage(field) {
   const val = form.value[field.key]
-  if (field.maxLength && String(val).length > field.maxLength)
-    return `En fazla ${field.maxLength} karakter girebilirsiniz`
-  return `${field.label} alanı zorunludur`
+  if (field?.maxLength && String(val)?.length > field?.maxLength)
+    return `En fazla ${field?.maxLength} karakter girebilirsiniz`
+  if(field?.type === 'tel' && val?.length > 0 && val?.length < 10)
+    return 'Telefon numarası 10 haneli olmalı'
+  if(field?.positiveNumber==='mandatory' && val<0)
+    return `Negatif ${field?.label} mı olur kardeşim`
+  return `${field?.label} alanı zorunludur`
 }
  
 function formIsValid() {
@@ -202,28 +244,22 @@ function openEditModal(item) {
 function closeModal() {
   showModal.value       = false
   savingAttempted.value = false
-  emit('modalError', null)
+  emit(`${props.domainName}ModalError`, null)
 }
  
 // ---------------------------------------------------------------
 // Save
 // ---------------------------------------------------------------
-function handleSave() {
+async function handleSave() {
   savingAttempted.value = true
   if (!formIsValid()) return
- 
   saving.value = true
   try {
-    const result = emit('save', {
+    const result =  await props.onSave({
     id: isEditing.value ? editingId.value : null,
     isEditing: isEditing.value,
-    data: isEditing.value
-      ? (({ password, ...form_yeni }) => form_yeni)(form.value)
-      : { ...form.value }
+    data: { ...form.value }
     })
-
-  saving.value = false
-
   if (!result?.success) return
     closeModal()
     

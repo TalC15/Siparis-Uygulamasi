@@ -1,21 +1,35 @@
 const Product = require('../models/product.model');
 
 exports.getProducts = async (req, res) => {
-    const data = await Product.getAll();
-    res.json(data);
+    res.json(await Product.getAll());
 };
 
 exports.postProduct = async (req,res) =>{
-    const result = await Product.create(req.body)
-    res.json(result)
+    const returnedValue = await Product.create(req.body)
+    if(returnedValue.success){
+        res.status(200).json({message:returnedValue.message, status: true});
+    }  
+    else{
+        res.status(200).json({ message:returnedValue.message, status: false })
+    }
 }
 
 exports.updateProduct = async (req,res) => {
-    const result = await Product.update(req.body,req.params.id)
-    res.json(result)
+    const returnedValue = await Product.update(req.body,req.params.id)
+    if(returnedValue.success){
+        res.status(200).json({message:returnedValue.message, status: true});
+    }  
+    else{
+        res.status(200).json({ message:returnedValue.message, status: false })
+    }
 }
 
 exports.deleteProduct = async (req,res) =>{
-    const result = await Product.delete(req.params.id)
-    res.json(result)
+    const returnedValue = await Product.delete(req.params.id)
+    if(returnedValue.success){
+        res.status(200).json({message:returnedValue.message, status: true});
+    }  
+    else{
+        res.status(200).json({ message:returnedValue.message, status: false })
+    }
 }

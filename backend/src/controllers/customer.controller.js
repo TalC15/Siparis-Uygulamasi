@@ -1,21 +1,35 @@
 const Customer = require('../models/customer.model');
 
 exports.getAll = async (req, res) => {
-    const receivedData= await Customer.getAll();
-    res.json(receivedData);
+    res.json(await Customer.getAll());
 };
 
 exports.create = async (req, res) => {
-    await Customer.create(req.body);
-    res.json({message:"Created"});
+    const returnedValue = await Customer.create(req.body);
+     if(returnedValue.success){
+        res.status(200).json({message:returnedValue.message, status: true});
+    }  
+    else{
+        res.status(200).json({ message:returnedValue.message, status: false })
+    }
 };
 
 exports.update = async (req, res) => {
-    await Customer.update(req.params.id, req.body);
-    res.json({message:"Updated"});
+    const returnedValue = await Customer.update(req.params.id, req.body);
+     if(returnedValue.success){
+        res.status(200).json({message:returnedValue.message, status: true});
+    }  
+    else{
+        res.status(200).json({ message:returnedValue.message, status: false })
+    }
 };
 
 exports.delete = async (req, res) => {
-    await Customer.delete(req.params.id);
-    res.json({message:"Deleted"});
+    const returnedValue = await Customer.delete(req.params.id);
+     if(returnedValue.success){
+        res.status(200).json({message:returnedValue.message, status: true});
+    }  
+    else{
+        res.status(200).json({ message:returnedValue.message, status: false })
+    }
 };

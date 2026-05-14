@@ -25,11 +25,11 @@
 
           <!-- Error -->
           <div
-            v-if="errorMessage"
+            v-if="props.usersModalErrorForPassword"
             class="alert alert-danger"
             role="alert"
           >
-            {{ errorMessage }}
+            {{ usersModalErrorForPassword }}
           </div>
 
           <!-- New Password -->
@@ -104,10 +104,10 @@
 
           <button
             class="btn btn-primary"
-            :disabled="loading"
+            :disabled="saving"
             @click="submit"
           >
-            {{ loading ? 'Kaydediliyor...' : 'Şifreyi Güncelle' }}
+            {{ saving ? 'Kaydediliyor...' : 'Şifreyi Güncelle' }}
           </button>
         </div>
 
@@ -120,31 +120,26 @@
 import { reactive, ref, watch } from 'vue'
 
 const props = defineProps({
-  show: {
-    type: Boolean,
-    default: false
-  },
-
-  loading: {
-    type: Boolean,
-    default: false
-  },
-
-  errorMessage: {
-    type: String,
-    default: ''
-  },
   selectedUserId: {
     type: Number,
     default: null
-  }
+  },
+  usersModalErrorForPassword: {
+    type: String,
+    default: null
+  },
+  onSave: {
+    type:Function,
+    required: true
+  },
 })
 
 const emit = defineEmits([
   'close',
-  'save',
+  'usersModalErrorForPassword',
 ])
 
+const saving = ref(false)
 const saveAttempted = ref(false)
 
 const form = reactive({
@@ -164,6 +159,7 @@ watch(
 
 function closeModal() {
   resetForm()
+  emit('usersModalErrorForPassword',null)
   emit('close')
 }
 
@@ -174,7 +170,7 @@ function resetForm() {
  
 }
 
-function submit() {
+async function submit() {
   saveAttempted.value = true
 
   if (
@@ -184,11 +180,18 @@ function submit() {
   ) {
     return
   }
+  saving.value = true
+ try {
+    const result =  await props.onSave({
+      id: props.selectedUserId,
+      newPassword: form.newPassword
+    })
 
-    emit('save', {
-    id: props.selectedUserId,
-    newPassword: form.newPassword
-  })
-
+  if (!result?.success) return
+    closeModal()
+    
+  } finally {
+    saving.value = false
+  }
 }
 </script>

@@ -1,11 +1,14 @@
 <template>
   <CrudView
-    title="Ürünler"
-    item-label="Ürün"
+    :title="'Ürünler'"
+    :item-label="'Ürün'"
+    :domain-name="'products'"
     :fields="fields"
     :loading="loading"
     :error="error"
-    @save="handleSave"
+    :productsModalError="productsModalError"
+    :on-save="handleSave"
+    @productsModalError="productsModalError = $event"
     @delete="handleDelete"
     v-slot="{ onEdit, onDelete, showDeleteModal }"
   >
@@ -27,7 +30,7 @@ import { getProducts, createProduct, updateProduct, deleteProduct } from '@/serv
 const products = ref([])
 const loading  = ref(false)
 const error    = ref(null)
- 
+const productsModalError = ref(null)
 // ---------------------------------------------------------------
 // Field config — sadece bu view'a özgü kısım
 // ---------------------------------------------------------------
@@ -42,9 +45,9 @@ const fields = [
       { value: '5', label: 'adet' },
     ]
   },
-  { key: 'unit_weight',  label: 'Birim Ağırlık', type: 'number', maxLength: 9 },
-  { key: 'box_quantity', label: 'Kutu Adedi',    type: 'number', maxLength: 9 },
-  { key: 'box_weight',   label: 'Kutu Ağırlığı', type: 'number', maxLength: 9 },
+  { key: 'unit_weight',  label: 'Birim Ağırlık', type: 'number', maxLength: 9,positiveNumber: 'mandatory'},
+  { key: 'box_quantity', label: 'Kutu Adedi',    type: 'number', maxLength: 9, positiveNumber: 'mandatory'},
+  { key: 'box_weight',   label: 'Kutu Ağırlığı', type: 'number', maxLength: 9, positiveNumber: 'mandatory'},
 ]
  
 // ---------------------------------------------------------------
@@ -64,22 +67,32 @@ async function fetchProducts() {
  
 // ---------------------------------------------------------------
 // CrudView'dan gelen save/delete eventleri
-// ---------------------------------------------------------------
-async function handleSave({ id, isEditing, data }) {
-  error.value = null
-  try {
-    if (isEditing) {
-      await updateProduct(id, data)
-    } else {
-      await createProduct(data)
+// --------------------------------------------------------------- 
+async function handleSave(payload) {
+  return new Promise(async (resolve) => {
+    let returnedResult = null
+    productsModalError.value = null
+
+    try {
+      if (payload.isEditing) {
+        returnedResult = await updateProduct(payload.id, payload.data)
+      } else {
+        returnedResult = await createProduct(payload.data)
+      }
+
+      await fetchProducts()
+      resolve({ success: returnedResult.status })
+    } catch (err) {
+      resolve({ success: false })
     }
-    await fetchProducts()
-  } catch (err) {
-    error.value = err.message
-    throw err   // CrudView modalı açık tutsun
-  }
+    finally {
+      if (!returnedResult?.status) {
+        productsModalError.value = returnedResult?.message
+      }
+    }
+  })
 }
- 
+
 async function handleDelete(id) {
   error.value = null
   try {

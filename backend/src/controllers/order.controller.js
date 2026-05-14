@@ -36,7 +36,8 @@ exports.getDetail = async (req, res) => {
 
 exports.createOrder = async (req,res) => {
     const p = await pool;
-    const customerId = req.body.customer_id
+    console.log({'abc':req.body.items})
+    const customerId = req.body.customerDefination
     const userId = req.body.user_id
     const items = req.body.items
     const orderResult = await p.request()

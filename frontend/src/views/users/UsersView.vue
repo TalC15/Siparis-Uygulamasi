@@ -2,11 +2,13 @@
   <CrudView
     :title="'Kullanıcılar'"
     :item-label="'Kullanıcı'"
+    :domain-name="'users'"
     :fields="fields"
     :loading="loading"
     :error="error"
-    :modal-error="modalError"
-    @modalError="modalError = $event"
+    :users-modal-error="usersModalError"
+    :on-save="handleSave"
+    @usersModalError="usersModalError = $event"
     @isEditing="isEditing = $event"
     @save="handleSave"
     @delete="handleDelete"
@@ -22,6 +24,8 @@
   </CrudView>
   <ChangePasswordModal
    :selectedUserId="selectedUserId"
+   :users-modal-error-for-password="usersModalErrorForPassword"
+   @usersModalErrorForPassword="usersModalErrorForPassword = $event"
    @close="closePasswordModal"
    @save="handleSavePassword"
   >
@@ -39,10 +43,10 @@ import ChangePasswordModal from '@/components/common/ChangePasswordModal.vue'
 const users = ref([])
 const loading  = ref(false)
 const error    = ref(null)
-const modalError = ref(null)
+const usersModalError = ref(null)
 const isEditing = ref(false)
 const selectedUserId = ref(null)
-
+const usersModalErrorForPassword = ref(null)
 // ---------------------------------------------------------------
 // Field config — sadece bu view'a özgü kısım
 // ---------------------------------------------------------------
@@ -75,14 +79,20 @@ async function fetchUsers() {
 }
  
 async function handleSavePassword(data){
-  const {id,newPassword} = data
-  var returnedResult = null  
-  try {
-    returnedResult = await updateUserPassword(id, {newPassword})
-    selectedUserId.value = null
-  } catch (err) {
-    throw err 
-  }
+  return new Promise(async (resolve)=>{
+    let returnedResult = null
+    usersModalErrorForPassword.value = null
+    try{
+      returnedResult = await updateUserPassword(data.id, {'newPassword':data.newPassword})
+      resolve({ success: returnedResult.status })
+    } catch(err){
+      resolve({ success: false })
+    } finally {
+      if (!returnedResult?.status) {
+        usersModalErrorForPassword.value = returnedResult?.message
+      }
+    }
+  })
 }
 
 // ---------------------------------------------------------------
@@ -91,7 +101,7 @@ async function handleSavePassword(data){
  async function handleSave(payload) {
   return new Promise(async (resolve) => {
     let returnedResult = null
-    modalError.value = null
+    usersModalError.value = null
 
     try {
       if (payload.isEditing) {
@@ -101,15 +111,13 @@ async function handleSavePassword(data){
       }
 
       await fetchUsers()
-
-      resolve({ success: true })
-
+      resolve({ success: returnedResult.status })
     } catch (err) {
       resolve({ success: false })
     }
     finally {
       if (!returnedResult?.status) {
-        modalError.value = returnedResult?.message
+        usersModalError.value = returnedResult?.message
       }
     }
   })

@@ -2,35 +2,87 @@ const { pool } = require('../config/db');
 
 exports.getAll = async () => {
     const p = await pool;
-    return (await p.request().query('SELECT * FROM Customers')).recordset;
+    const result = await p.request().query('SELECT * FROM Customers');
+    return result.recordset;
 };
 
 exports.create = async (body) => {
-    const p = await pool;
-    const {name,address,phone,branch} = body
-    await p.request()
-    .input('name', name)
-    .input('address', address)
-    .input('phone', phone)
-    .input('branch', branch)
-    .query('INSERT INTO Customers(name,address,phone,branch) VALUES (@name,@address,@phone,@branch)');
+    try {
+        const p = await pool;
+        const { name, address, phone, branch } = body;
+
+        await p.request()
+            .input('name', name ?? null)
+            .input('address', address ?? null)
+            .input('phone', phone ?? null)
+            .input('branch', branch ?? null)
+            .query(`
+                INSERT INTO Customers (name, address, phone, branch)
+                VALUES (@name, @address, @phone, @branch)
+            `);
+
+        return { success: true, message: 'Customer created' };
+
+    } catch (err) {
+        console.error(err);
+        return { success: false, message: 'A problem occurred' };
+    }
 };
 
 exports.update = async (id, body) => {
-    const p = await pool;
-    const {name,address,phone,branch} = body
-    await p.request()
-        .input('id', id)
-        .input('name', name)
-        .input('address', address)
-        .input('phone', phone)
-        .input('branch', branch)
-        .query('UPDATE Customers SET name=@name,address=@address,phone=@phone,branch=@branch WHERE id=@id');
+    try {
+        const p = await pool;
+        const { name, address, phone, branch } = body;
+
+        const result = await p.request()
+            .input('id', id)
+            .input('name', name ?? null)
+            .input('address', address ?? null)
+            .input('phone', phone ?? null)
+            .input('branch', branch ?? null)
+            .query(`
+                UPDATE Customers
+                SET
+                    name    = @name,
+                    address = @address,
+                    phone   = @phone,
+                    branch  = @branch
+                WHERE id = @id
+                AND (
+                    ISNULL(name, '')    <> ISNULL(@name, '')
+                    OR ISNULL(address, '') <> ISNULL(@address, '')
+                    OR ISNULL(phone, '')   <> ISNULL(@phone, '')
+                    OR ISNULL(branch, '')  <> ISNULL(@branch, '')
+                )
+            `);
+
+        if (result.rowsAffected[0] === 0) {
+            return { success: true, message: 'Nothing changed' };
+        }
+
+        return { success: true, message: 'Customer updated' };
+
+    } catch (err) {
+        console.error(err);
+        return { success: false, message: 'A problem occurred' };
+    }
 };
 
 exports.delete = async (id) => {
-    const p = await pool;
-    await p.request()
-        .input('id', id)
-        .query('DELETE FROM Customers WHERE id=@id');
+    try {
+        const p = await pool;
+        const result = await p.request()
+            .input('id', id)
+            .query('DELETE FROM Customers WHERE id = @id');
+
+        if (result.rowsAffected[0] === 0) {
+            return { success: true, message: 'Nothing deleted' };
+        }
+
+        return { success: true, message: 'Customer deleted' };
+
+    } catch (err) {
+        console.error(err);
+        return { success: false, message: 'A problem occurred' };
+    }
 };

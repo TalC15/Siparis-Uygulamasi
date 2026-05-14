@@ -6,33 +6,40 @@ exports.getAll = async (req, res) => {
 
 exports.create = async (req, res) => {
     const returnedValue = await User.create(req.body);
-    if(returnedValue){
-        res.status(200).json({message:"Created", status: true});
+    if(returnedValue.success){
+        res.status(200).json({message:returnedValue.message, status: true});
     }  
     else{
-        res.status(200).json({ message: 'Kullanıcı adı zaten var',status: false })
+        res.status(200).json({ message:returnedValue.message,status: false })
     }
 };
 
 exports.update = async (req, res) => {
     const returnedValue = await User.update(req.params.id, req.body);
-    if(returnedValue){
-        res.status(200).json({message:"Updated"});
+    if(returnedValue.success){
+        res.status(200).json({message:returnedValue.message, status: true});
     }  
     else{
-        res.status(400).json({ message: 'Kullanıcı adı zaten var' })
+        res.status(200).json({ message:returnedValue.message, status: false })
     }
 };
 
 exports.updatePassword = async (req, res) => {
-    console.log('updatepassword a geldin')
     const returnedValue = await User.updatePassword(req.params.id, req.body);
-    if(returnedValue){
-        res.status(200).json({message:"Password is updated"});
+    if(returnedValue.success){
+        res.status(200).json({message:returnedValue.message, status: true});
     }  
+    else{
+        res.status(200).json({ message:returnedValue.message, status: false })
+    }
 };
 
 exports.delete = async (req, res) => {
-    await User.delete(req.params.id);
-    res.json({message:"Deleted"});
+    const returnedValue = await User.delete(req.params.id);
+      if(returnedValue.success){
+        res.status(200).json({message:returnedValue.message, status: true});
+    }  
+    else{
+        res.status(200).json({ message:returnedValue.message, status: false })
+    }
 };

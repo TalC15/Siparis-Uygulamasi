@@ -23,8 +23,8 @@ export async function createUser(data) {
     },
     body: JSON.stringify(data),
   })
-  if (res.ok) return res.json()
-  else return res.json({'message':'bir sorun oluştu'})
+  if (!res.ok) throw new Error('Kullanıcı oluşturulamadı')
+  return res.json()
 }
  
 export async function updateUser(id, data) {
@@ -36,7 +36,7 @@ export async function updateUser(id, data) {
     },
     body: JSON.stringify(data),
   })
-  if (!res.ok) throw new Error('Kullanıcı bilgisi güncellenemedi')
+  if (!res.ok) throw new Error('Kullanıcı güncellenemedi')
   return res.json()
 }
  
@@ -50,7 +50,7 @@ export async function updateUserPassword(id, data) {
     },
     body: JSON.stringify(data),
   })
-  if (!!res.ok) 
+  if (!res.ok) throw new Error('Kullanıcı şifresi güncellenemedi')
   return res.json()
 }
 
