@@ -39,9 +39,7 @@ const fields = [
   { key: 'unit_type',    label: 'Birim Türü',    type: 'select', required: true,
     options: [
       { value: '1', label: 'kg'    },
-      { value: '2', label: 'gram'  },
       { value: '3', label: 'litre' },
-      { value: '4', label: 'mL'   },
       { value: '5', label: 'adet' },
     ]
   },

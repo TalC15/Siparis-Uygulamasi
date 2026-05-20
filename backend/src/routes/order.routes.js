@@ -8,5 +8,7 @@ router.post('/', authMiddleware, c.createOrder);
 router.put('/:id',authMiddleware, c.updateOrder);
 router.patch('/:id/status', authMiddleware, c.updateStatus);
 router.delete('/:id', authMiddleware, c.deleteOrder);
+
+router.get('/chart/order-count',c.getOrderCount);
  
 module.exports = router;

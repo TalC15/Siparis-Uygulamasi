@@ -7,4 +7,5 @@ router.post('/',authMiddleware, c.create);
 router.put('/:id',authMiddleware, c.update);
 router.delete('/:id',authMiddleware, c.delete);
 
+router.get('/chart/customer-order-count',authMiddleware,c.getCustomerOrderCount)
 module.exports = router;

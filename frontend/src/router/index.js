@@ -46,6 +46,30 @@ const routes = [
     meta: {requiresAuth: true}
   },
   {
+    path: '/reports',
+    name: 'reports',
+    component: () => import('../components/reports/ReportHome.vue'),
+    meta: {requiresAuth: true}
+  },
+  {
+    path: '/reports/product-reports',
+    name: 'product-reports',
+    component: ()  => import('../views/reports/ProductReports.vue'),
+    meta: {requiresAuth: true}
+  },
+  {
+    path: '/reports/order-detail-reports',
+    name: 'order-detail-reports',
+    component: () => import('../views/reports/OrderDetailReports.vue'),
+    meta: {requiresAuth: true}
+  },
+  {
+    path: '/order-count-chart',
+    name: 'order-count-chart',
+    component: () => import('../views/charts/MainChart.vue'),
+    meta: {requiresAuth: true}
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     component: () => import('../views/NotFoundView.vue')

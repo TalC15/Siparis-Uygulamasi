@@ -65,6 +65,6 @@ defineEmits(['edit', 'delete', 'detail'])
  
 function formatDate(dateStr) {
   if (!dateStr) return '—'
-  return new Date(dateStr).toLocaleDateString('tr-TR')
+  return new Date(dateStr).toLocaleString('tr-TR')
 }
 </script>

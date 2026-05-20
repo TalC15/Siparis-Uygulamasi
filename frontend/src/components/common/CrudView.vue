@@ -54,7 +54,7 @@
  
               <!-- Select -->
               <div v-if="field.type === 'select'" class="mb-3">
-                <label class="form-label">{{ field.label }}</label>
+                <label class="form-label">{{ field.label }} <span v-if="field.required" class="text-danger">*</span></label>
                 <select
                   v-model="form[field.key]"
                   class="form-select"
@@ -75,7 +75,7 @@
  
               <!-- Text / Number / Email vs. -->
               <div v-else class="mb-3">
-                <label class="form-label">{{ field.label }}</label>
+                <label class="form-label">{{ field.label }} <span v-if="field.required" class="text-danger">*</span></label>
                 <input
                   v-model="form[field.key]"
                   @input="onTelInput(field)"

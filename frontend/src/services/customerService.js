@@ -51,3 +51,15 @@ export async function deleteCustomer(id) {
   if (!res.ok) throw new Error('Müşteri silinemedi')
   return res.json()
 }
+
+export async function getCustomerOrders() {
+  const res = await fetch(`${API_URL}/customers/chart/customer-order-count`, {
+    method: 'GET',
+    headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${tokenService.getToken()}`
+    },
+  })
+  if (!res.ok) throw new Error('Müşteri Sipariş Bilgisi alınamadı')
+  return res.json()
+}

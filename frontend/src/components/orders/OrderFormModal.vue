@@ -100,7 +100,7 @@
                   style="max-height:200px; position:absolute; z-index:1055;"
                 >
                   <li
-                    v-for="p in filteredProducts(item.productSearch)"
+                    v-for="p in filteredProducts(item,idx)"
                     :key="p.value"
                     class="dropdown-item cursor-pointer"
                     @mousedown.prevent="selectProduct(item, p)"
@@ -133,7 +133,7 @@
                 min="1"
               />
               <div v-if="attempted && !isQuantityValid(item.quantity)" class="invalid-feedback">
-                Geçerli bir miktar giriniz (min: 1)
+                Geçerli bir miktar giriniz (en az: 1)
               </div>
             </div>
           </div>
@@ -142,6 +142,7 @@
           <button
             type="button"
             class="btn btn-outline-secondary btn-sm"
+            :disabled="saving || form.items.length===1 && (!form.items[0].product_id || !form.items[0].quantity)"
             @click="addItem"
           >
             + Ürün Ekle
@@ -149,7 +150,7 @@
         </div>
  
         <div class="modal-footer">
-          <button class="btn btn-secondary" @click="closeModal">İptal</button>
+          <button class="btn btn-secondary" :disabled="saving" @click="closeModal">İptal</button>
           <button
             class="btn btn-primary"
             :disabled="saving"
@@ -226,6 +227,10 @@ onMounted(() => {
 // Customer search & select
 // ---------------------------------------------------------------
 const filteredCustomers = computed(() => {
+ if(customerSearch.value===''){
+  form.value.customer_id = null
+  customerSearch.value   = ''
+ }
   const q = customerSearch.value.toLowerCase().trim()
   if (!q) return props.customerOptions.slice(0, 50)
   return props.customerOptions
@@ -242,7 +247,17 @@ function selectCustomer(c) {
 // ---------------------------------------------------------------
 // Product search & select
 // ---------------------------------------------------------------
-function filteredProducts(search) {
+function filteredProducts(item,idx) {
+  const search = item?.productSearch
+  if(search ===''){
+      form.value.items[idx] = {
+        product_id:    null,
+        productSearch: '',
+        quantity:      0,
+        showDropdown: false,
+       }
+   }
+  
   const q = (search ?? '').toLowerCase().trim()
   if (!q) return props.productOptions.slice(0, 50)
   return props.productOptions
@@ -286,6 +301,19 @@ function formIsValid() {
   )
 }
  
+function mergeOrderItems(payload) {
+  const merged = Object.values(
+  payload.items.reduce((acc, { product_id, quantity }) => {
+    acc[product_id] ??= { product_id, quantity: 0 };
+    acc[product_id].quantity += quantity;
+    return acc;
+  }, {})
+);
+
+const newPayload = {...payload,items:merged}
+return newPayload
+}
+
 // ---------------------------------------------------------------
 // Save
 // ---------------------------------------------------------------
@@ -300,10 +328,12 @@ function handleSave() {
       quantity:   Number(it.quantity),
     })),
   }
- 
-  emit('save', payload)
+  const newPayload = mergeOrderItems(payload)
+  emit('save', newPayload)
 }
  
+
+
 // ---------------------------------------------------------------
 // Close helpers
 // ---------------------------------------------------------------

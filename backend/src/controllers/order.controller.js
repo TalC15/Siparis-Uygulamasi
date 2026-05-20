@@ -53,3 +53,12 @@ exports.deleteOrder = async (req, res) => {
         res.status(500).json({ message: result.message, status: false });
     }
 };
+
+exports.getOrderCount = async (req,res) => {
+    const result = await Order.getOrderCount();
+    if (result.success) {
+        res.status(200).json(result.data);
+    } else {
+        res.status(500).json({ message: result?.message, status: false });
+    }
+}

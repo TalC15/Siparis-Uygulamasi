@@ -62,3 +62,12 @@ export async function deleteOrder(id) {
   if (!res.ok) throw new Error('Sipariş silinemedi');
   return res.json();
 }
+
+export async function getOrderCounts() {
+  const res = await fetch(`${API_URL}/orders/chart/order-count`, {
+    method: 'GET',
+    headers: authHeaders(),
+  });
+  if (!res.ok) throw new Error('Sipariş Miktarları elde edilemedi');
+  return res.json();
+}

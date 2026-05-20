@@ -235,3 +235,14 @@ exports.delete = async (id) => {
         return { success: false, message: 'Sipariş silinemedi' };
     }
 };
+
+exports.getOrderCount = async () => {
+    try{
+        const p = await pool
+        const result = await p.request().query('select * from OrderCountsView')
+        return { success: true, data: result.recordset };
+    }catch (err) {
+        console.error(err);
+        return { success: false, message: 'Sipariş Sayıları alınamadı' };
+    }
+}

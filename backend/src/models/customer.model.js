@@ -86,3 +86,14 @@ exports.delete = async (id) => {
         return { success: false, message: 'A problem occurred' };
     }
 };
+
+exports.getCustomerOrderCount = async () => {
+    try{
+        const p = await pool
+        const result = await p.request().query('select * from CustomerOrderCountsView')
+        return {success:true,data:result.recordset}
+    }catch (err) {
+        console.error(err);
+        return { success: false, message: 'A problem occurred' };
+    }
+}
